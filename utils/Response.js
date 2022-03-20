@@ -8,6 +8,9 @@ class Response {
                 message,
                 data,
             }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
         }
     }
 
