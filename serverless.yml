@@ -2,157 +2,155 @@ service: spotify-likes-playlist
 frameworkVersion: 3
 
 custom:
-  autoSyncQueueSchedule: cron(0 16 * * ? *)
-  slpUsersTableName: slp_${sls:stage}_users
-  slpSyncQueueName: slp-${sls:stage}-sync-queue
-  slpSpotifyClientId: ${ssm:/slp/${sls:stage}/spotify-client-id}
-  slpSpotifyClientSecret: ${ssm:/slp/${sls:stage}/spotify-client-secret}
-  slpSpotifyClientRedirectUri: ${ssm:/slp/${sls:stage}/spotify-client-redirect-uri}
-  slpJwtSecret: ${ssm:/slp/${sls:stage}/jwt-secret}
+    autoSyncQueueSchedule: cron(0 16 * * ? *)
+    slpUsersTableName: slp_${sls:stage}_users
+    slpSyncQueueName: slp-${sls:stage}-sync-queue
+    slpSpotifyClientId: ${ssm:slp-${sls:stage}-spotify-client-id}
+    slpSpotifyClientSecret: ${ssm:slp-${sls:stage}-spotify-client-secret}
+    slpSpotifyClientRedirectUri: ${ssm:slp-${sls:stage}-spotify-client-redirect-uri}
+    slpJwtSecret: ${ssm:slp-${sls:stage}-jwt-secret}
 
 provider:
-  name: aws
-  runtime: nodejs12.x
-  lambdaHashingVersion: '20201221'
-  httpApi:
-    authorizers:
-      customApiAuthoriser:
-        type: request
-        name: slp-api-custom-authoriser
-        functionName: apiAuthoriser
-        enableSimpleResponses: true
-        payloadVersion: '2.0'
+    name: aws
+    runtime: nodejs12.x
+    lambdaHashingVersion: '20201221'
+    httpApi:
+        authorizers:
+            customApiAuthoriser:
+                type: request
+                name: slp-api-custom-authoriser
+                functionName: apiAuthoriser
+                enableSimpleResponses: true
+                payloadVersion: '2.0'
 
-  	
-  iam:
-    role:
-      statements:
-        - Effect: Allow
-          Action:
-            - dynamodb:DescribeTable
-            - dynamodb:Query
-            - dynamodb:Scan
-            - dynamodb:GetItem
-            - dynamodb:PutItem
-            - dynamodb:UpdateItem
-            - dynamodb:DeleteItem
-          Resource: 
-            Fn::GetAtt:
-              - SLPUsersTable
-              - Arn
-        - Effect: Allow
-          Action:
-            - sqs:GetQueueUrl
-            - sqs:SendMessage
-            - sqs:ReceiveMessage
-          Resource:
-            Fn::GetAtt:
-              - SLPSyncQueue
-              - Arn
+    iam:
+        role:
+            statements:
+                - Effect: Allow
+                  Action:
+                      - dynamodb:DescribeTable
+                      - dynamodb:Query
+                      - dynamodb:Scan
+                      - dynamodb:GetItem
+                      - dynamodb:PutItem
+                      - dynamodb:UpdateItem
+                      - dynamodb:DeleteItem
+                  Resource:
+                      Fn::GetAtt:
+                          - SLPUsersTable
+                          - Arn
+                - Effect: Allow
+                  Action:
+                      - sqs:GetQueueUrl
+                      - sqs:SendMessage
+                      - sqs:ReceiveMessage
+                  Resource:
+                      Fn::GetAtt:
+                          - SLPSyncQueue
+                          - Arn
 
-  environment:
-    SLP_SYNC_QUEUE_NAME: ${self:custom.slpSyncQueueName}
-    SLP_USERS_TABLE_NAME: ${self:custom.slpUsersTableName}
-    SLP_SPOTIFY_CLIENT_ID: ${self:custom.slpSpotifyClientId}
-    SLP_SPOTIFY_CLIENT_SECRET: ${self:custom.slpSpotifyClientSecret}
-    SLP_SPOTIFY_REDIRECT_URI: ${self:custom.slpSpotifyClientRedirectUri}
-    SLP_JWT_SECRET: ${self:custom.slpJwtSecret}
-
+    environment:
+        SLP_SYNC_QUEUE_NAME: ${self:custom.slpSyncQueueName}
+        SLP_USERS_TABLE_NAME: ${self:custom.slpUsersTableName}
+        SLP_SPOTIFY_CLIENT_ID: ${self:custom.slpSpotifyClientId}
+        SLP_SPOTIFY_CLIENT_SECRET: ${self:custom.slpSpotifyClientSecret}
+        SLP_SPOTIFY_REDIRECT_URI: ${self:custom.slpSpotifyClientRedirectUri}
+        SLP_JWT_SECRET: ${self:custom.slpJwtSecret}
 
 functions:
-  apiAuthoriser:
-    handler: handlers/APIAuthoriser.handler
+    apiAuthoriser:
+        handler: handlers/APIAuthoriser.handler
 
-  apiAuthenticator:
-    handler: handlers/APIAuthenticator.handler
-    events:
-      - httpApi:
-          path: /login
-          method: post
+    apiAuthenticator:
+        handler: handlers/APIAuthenticator.handler
+        events:
+            - httpApi:
+                  path: /login
+                  method: post
 
-  getAccountInfo:
-    handler: handlers/GetAccountInfo.handler
-    events:
-      - httpApi:
-          path: /account-info
-          method: get
-          authorizer:
-            name: customApiAuthoriser
+    getAccountInfo:
+        handler: handlers/GetAccountInfo.handler
+        events:
+            - httpApi:
+                  path: /account-info
+                  method: get
+                  authorizer:
+                      name: customApiAuthoriser
 
-  disableSync:
-    handler: handlers/DisableSync.handler
-    events:
-      - httpApi:
-          path: /disable-sync
-          method: post
-          authorizer:
-            name: customApiAuthoriser
+    disableSync:
+        handler: handlers/DisableSync.handler
+        events:
+            - httpApi:
+                  path: /disable-sync
+                  method: post
+                  authorizer:
+                      name: customApiAuthoriser
 
-  enableSync:
-    handler: handlers/EnableSync.handler
-    events:
-      - httpApi:
-          path: /enable-sync
-          method: post
-          authorizer:
-            name: customApiAuthoriser
+    enableSync:
+        handler: handlers/EnableSync.handler
+        events:
+            - httpApi:
+                  path: /enable-sync
+                  method: post
+                  authorizer:
+                      name: customApiAuthoriser
 
-  autoPlaylistSync:
-    handler: handlers/AutoPlaylistSync.handler
-    events:
-      - schedule: cron(0 16 * * ? *)
+    autoPlaylistSync:
+        handler: handlers/AutoPlaylistSync.handler
+        events:
+            - schedule: cron(0 16 * * ? *)
 
-  manualPlaylistSync:
-    handler: handlers/ManualPlaylistSync.handler
-    events:
-      - httpApi:
-          path: /initiate-sync
-          method: post
-          authorizer:
-            name: customApiAuthoriser
+    manualPlaylistSync:
+        handler: handlers/ManualPlaylistSync.handler
+        events:
+            - httpApi:
+                  path: /initiate-sync
+                  method: post
+                  authorizer:
+                      name: customApiAuthoriser
 
-  syncQueueProcessor:
-    handler: handlers/SyncQueue.handler
-    events:
-      - sqs:
-          arn:
-            Fn::GetAtt:
-              - SLPSyncQueue
-              - Arn
-          	
+    syncQueueProcessor:
+        handler: handlers/SyncQueue.handler
+        events:
+            - sqs:
+                  arn:
+                      Fn::GetAtt:
+                          - SLPSyncQueue
+                          - Arn
+
 resources:
-  Resources:
-    SLPUsersTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:custom.slpUsersTableName}
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: access_token
-            AttributeType: S
-          - AttributeName: refresh_token
-            AttributeType: S
-          - AttributeName: expires_at
-            AttributeType: S
-          - AttributeName: sync_active
-            AttributeType: B
-          - AttributeName: last_sync
-            AttributeType: S
-          - AttributeName: managed_playlist_id
-            AttributeType: S
-          - AttributeName: created_at
-            AttributeType: N
-          - AttributeName: updated_at
-            AttributeType: N
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        ProvisionedThroughput:
-          ReadCapacityUnits: 5
-          WriteCapacityUnits: 5
+    Resources:
+        SLPUsersTable:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: ${self:custom.slpUsersTableName}
+                AttributeDefinitions:
+                    - AttributeName: id
+                      AttributeType: S
+                    - AttributeName: access_token
+                      AttributeType: S
+                    - AttributeName: refresh_token
+                      AttributeType: S
+                    - AttributeName: expires_at
+                      AttributeType: S
+                    - AttributeName: sync_active
+                      AttributeType: B
+                    - AttributeName: last_sync
+                      AttributeType: S
+                    - AttributeName: managed_playlist_id
+                      AttributeType: S
+                    - AttributeName: created_at
+                      AttributeType: N
+                    - AttributeName: updated_at
+                      AttributeType: N
+                KeySchema:
+                    - AttributeName: id
+                      KeyType: HASH
+                ProvisionedThroughput:
+                    ReadCapacityUnits: 5
+                    WriteCapacityUnits: 5
 
-    SLPSyncQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: ${self:custom.slpSyncQueueName}
+        SLPSyncQueue:
+            Type: AWS::SQS::Queue
+            Properties:
+                QueueName: ${self:custom.slpSyncQueueName}
