@@ -12,8 +12,8 @@ module.exports.handler = async (event) => {
         },
     }
 
-    if (!Object.keys(event.headers).includes('Authorization')) {
-        Logger.warn({
+    if (!Object.keys(event.headers).includes('authorization')) {
+        Logger.info({
             service: 'api-authoriser-handler',
             message: 'Request does not include Authorization Header',
             event,
@@ -22,13 +22,13 @@ module.exports.handler = async (event) => {
         return notAuthorisedPayload
     }
 
-    const authorisationHeader = event.headers.Authorization.replace(
+    const authorisationHeader = event.headers.authorization.replace(
         'Bearer ',
         '',
     )
 
     if (authorisationHeader.length === 0) {
-        Logger.warn({
+        Logger.info({
             service: 'api-authoriser-handler',
             message: 'Authorization Header is empty',
             event,

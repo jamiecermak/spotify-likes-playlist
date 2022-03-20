@@ -40,6 +40,8 @@ module.exports.handler = async function (event, context) {
         Logger.error({
             service: 'auto-playlist-sync-handler',
             message: `Failed to get information for User ${userId}`,
+            event,
+            context,
             exception: ex,
         })
 
