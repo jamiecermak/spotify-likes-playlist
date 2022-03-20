@@ -19,7 +19,7 @@ function getQueueUrlFromName(QueueName) {
 }
 
 async function createSyncQueueItem(userId) {
-    const QueueUrl = await getQueueUrlFromName(SLP_SYNC_QUEUE_NAME)
+    const { QueueUrl } = await getQueueUrlFromName(SLP_SYNC_QUEUE_NAME)
 
     const command = new SendMessageCommand({
         QueueUrl,
