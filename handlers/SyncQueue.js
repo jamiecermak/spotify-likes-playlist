@@ -13,6 +13,8 @@ module.exports.handler = async function (event) {
             Logger.error({
                 service: 'sync-queue-handler',
                 message: `Failed to process sync for User ${userId}`,
+                exception_message: ex.message,
+                stack: ex.stack,
                 exception: ex,
             })
         }
