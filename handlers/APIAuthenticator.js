@@ -6,7 +6,7 @@ const { generateJWT } = require('../lib/Authentication')
 const { Response } = require('../utils/Response')
 
 module.exports.handler = async (event) => {
-    const eventBody = JSON.stringify(event.body)
+    const eventBody = JSON.parse(event.body)
 
     if (!Object.keys(eventBody).includes('spotify_code')) {
         return Response.Error(400, {}, 'No spotify_code provided')
