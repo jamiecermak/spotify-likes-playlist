@@ -10,9 +10,7 @@ module.exports.handler = async function () {
 
     const userIds = users.map((user) => user.id)
 
-    for (let i = 0; i < userIds.length; i++) {
-        const userId = userIds[i]
-
+    for (const userId of userIds) {
         try {
             await createSyncQueueItem(userId)
         } catch (ex) {
