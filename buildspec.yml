@@ -1,0 +1,21 @@
+version: 0.2
+
+env:
+    variables:
+        NODE_ENV: production
+    parameter-store:
+        SERVERLESS_ACCESS_KEY: 'SERVERLESS_ACCESS_KEY'
+
+phases:
+    install:
+        on-failure: ABORT
+        runtime-versions:
+            nodejs: 14
+        commands:
+            - npm install -g serverless
+            - NODE_ENV=test npm install
+    build:
+        on-failure: ABORT
+        commands:
+            - export SERVERLESS_ACCESS_KEY=$SERVERLESS_ACCESS_KEY
+            - serverless deploy --verbose --stage prod --conceal --region $AWS_REGION
