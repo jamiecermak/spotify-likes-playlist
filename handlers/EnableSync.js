@@ -21,7 +21,7 @@ module.exports.handler = async function (event) {
         const playlistResponse = await spotifyApi.createUserPlaylist(
             userId,
             'Liked Songs',
-            'Playlist managed by spotify-likes-playlist (https://github.com/jamiecermak/spotify-likes-playlist)',
+            'Synced with my Liked Songs each day by spotify-likes-playlist (https://github.com/jamiecermak/spotify-likes-playlist)',
         )
 
         const playlistId = playlistResponse.data.id
