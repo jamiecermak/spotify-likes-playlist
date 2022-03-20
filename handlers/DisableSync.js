@@ -7,8 +7,8 @@ const { getUser, disableSyncForUser } = require('../lib/DataAccess')
 const Logger = require('../utils/Logger')
 const { Response } = require('../utils/Response')
 
-module.exports.handler = async function (event, context) {
-    const userId = '' // TODO
+module.exports.handler = async function (event) {
+    const userId = event.requestContext.authorizer.lambda.user_id
 
     try {
         const user = await getUser(userId)

@@ -9,8 +9,8 @@ const sqsClient = new SQSClient({
     region: process.env.AWS_REGION,
 })
 
-module.exports.handler = async function (event, context) {
-    const userId = '' // TODO
+module.exports.handler = async function (event) {
+    const userId = event.requestContext.authorizer.lambda.user_id
 
     try {
         const command = new SendMessageCommand({
