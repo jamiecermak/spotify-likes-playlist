@@ -127,22 +127,6 @@ resources:
                 AttributeDefinitions:
                     - AttributeName: id
                       AttributeType: S
-                    - AttributeName: access_token
-                      AttributeType: S
-                    - AttributeName: refresh_token
-                      AttributeType: S
-                    - AttributeName: expires_at
-                      AttributeType: S
-                    - AttributeName: sync_active
-                      AttributeType: B
-                    - AttributeName: last_sync
-                      AttributeType: S
-                    - AttributeName: managed_playlist_id
-                      AttributeType: S
-                    - AttributeName: created_at
-                      AttributeType: N
-                    - AttributeName: updated_at
-                      AttributeType: N
                 KeySchema:
                     - AttributeName: id
                       KeyType: HASH
