@@ -22,6 +22,8 @@ provider:
                 functionName: apiAuthoriser
                 enableSimpleResponses: true
                 payloadVersion: '2.0'
+                identitySource:
+                    - $request.header.Authorization
 
     iam:
         role:

@@ -13,6 +13,12 @@ module.exports.handler = async (event) => {
     }
 
     if (!Object.keys(event.headers).includes('Authorization')) {
+        Logger.warn({
+            service: 'api-authoriser-handler',
+            message: 'Request does not include Authorization Header',
+            event,
+        })
+
         return notAuthorisedPayload
     }
 
@@ -22,6 +28,12 @@ module.exports.handler = async (event) => {
     )
 
     if (authorisationHeader.length === 0) {
+        Logger.warn({
+            service: 'api-authoriser-handler',
+            message: 'Authorization Header is empty',
+            event,
+        })
+
         return notAuthorisedPayload
     }
 
