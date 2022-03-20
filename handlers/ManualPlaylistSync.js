@@ -1,24 +1,14 @@
 // Push a Sync Queue Item for the Authorised Account
 
-const { SQSClient, SendMessageCommand } = require('@aws-sdk/client-sqs')
 const Logger = require('../utils/Logger')
 const { Response } = require('../utils/Response')
-
-const sqsClient = new SQSClient({
-    apiVersion: 'latest',
-    region: process.env.AWS_REGION,
-})
+const { createSyncQueueItem } = require('../utils/SQS')
 
 module.exports.handler = async function (event) {
     const userId = event.requestContext.authorizer.lambda.user_id
 
     try {
-        const command = new SendMessageCommand({
-            QueueUrl: process.env.SLP_SYNC_QUEUE_URL,
-            MessageBody: JSON.stringify({ userId }),
-        })
-
-        await sqsClient.send(command)
+        await createSyncQueueItem(userId)
 
         return Response.OK({}, 'Syncing has started.')
     } catch (ex) {
