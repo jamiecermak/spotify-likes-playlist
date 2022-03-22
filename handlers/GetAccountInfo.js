@@ -17,7 +17,6 @@ module.exports.handler = async function (event) {
 
         if (user.managed_playlist_id) {
             const playlistResponse = await spotifyApi.getUserPlaylist(
-                userId,
                 user.managed_playlist_id,
             )
 
