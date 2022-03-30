@@ -13,6 +13,8 @@ module.exports.handler = async function (event) {
 
         const spotifyApi = await SpotifyAPI.fromUserId(userId)
 
+        const spotifyProfile = await spotifyApi.getUser()
+
         let playlist = null
 
         if (user.managed_playlist_id) {
@@ -25,12 +27,15 @@ module.exports.handler = async function (event) {
                 name: playlistResponse.data.name,
                 spotify_url: playlistResponse.data.external_urls.spotify,
                 total_tracks: playlistResponse.data.tracks.total,
+                images: playlistResponse.data.images,
+                followers: playlistResponse.data.followers.total,
             }
         }
 
         return Response.OK({
             id: userId,
-            display_name: user.display_name,
+            display_name: spotifyProfile.data.display_name,
+            images: spotifyProfile.data.images,
             sync_active: user.sync_active,
             last_sync: user.last_sync,
             playlist,
